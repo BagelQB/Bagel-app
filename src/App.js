@@ -5,7 +5,10 @@ function App() {
       <div className="wrapper">
         <div className="content">
           <div className="outer-circle">
-            <div className="inner-circle"></div>
+            <div className="inner-circle">
+                <div className="inner-circle-fill"></div>
+
+            </div>
             <span className={"title-text"}>bagel</span>
             <span className={"subtitle-text"}>coming soon</span>
           </div>
