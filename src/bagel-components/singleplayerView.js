@@ -1,8 +1,9 @@
 
 import {
-    Redirect
+    Redirect, useHistory
 } from "react-router-dom";
-import {useEffect, useRef, useState} from "react";
+import {useRef, useState} from "react";
+import {FullMenu} from "./mainMenu";
 
 export function PlayControlButton(props) {
     if(props.pressed) {
@@ -22,15 +23,23 @@ export function SingleplayerViewer() {
     const [nextSet, setNextSet] = useState(false);
     const [buzzed, setBuzzed] = useState(false);
     const [answer, setAnswer] = useState("");
+    let history = useHistory();
     const answerRef = useRef(null);
 
     if(redirectState !== "") {
         return (<Redirect to={redirectState}/>)
     }
 
+    let menu = <FullMenu visible={false} />;
+
+    if(history.action !== "REPLACE") {
+        menu = null;
+    }
+
     return(
         <>
-        <div className="main-wrapper">
+            {menu}
+        <div className={"main-wrapper " + (history.action === "REPLACE" ? "main-wrapper-fadein" : "")}>
 
             <div className="nav-bar shadow">
                 <div className={"point-cursor"} onClick={() => {
@@ -128,7 +137,7 @@ export function SingleplayerViewer() {
                                 <div className="option-header small-shadow flex-left-right">
                                     Params <button id="param-button" onClick={() => {setParamsOpen(true)}}><i className="fa fa-pencil"></i> EDIT</button>
                                 </div>
-                                <div className="parameter-box small-shadow" style={{"flex-grow": "3"}}>
+                                <div className="parameter-box small-shadow" style={{"flexGrow": "3"}}>
 
                                     Room Options
                                 </div>
@@ -162,7 +171,7 @@ export function SingleplayerViewer() {
                                     <div className="option-header small-shadow flex-left-right">
                                         Params <button id="param-button" onClick={() => {setParamsOpen(true)}}><i className="fa fa-pencil"></i> EDIT</button>
                                     </div>
-                                    <div className="parameter-box small-shadow" style={{"flex-grow": "3"}}>
+                                    <div className="parameter-box small-shadow" style={{"flexGrow": "3"}}>
                                         Room Options
                                     </div>
                                 </div>
@@ -195,17 +204,17 @@ export function SingleplayerViewer() {
                 <div className="flex-space" style={{"height": "100%"}}>
 
                     <div className="options-box-large small-shadow flex-space">
-                        <div className="vert-flex" style={{"flex-grow": "2"}}>
-                            <div className="parameter-box small-shadow" style={{"flex-grow": "3"}}>
+                        <div className="vert-flex" style={{"flexGrow": "2"}}>
+                            <div className="parameter-box small-shadow" style={{"flexGrow": "3"}}>
                                 Add Param
                             </div>
-                            <div className="parameter-box small-shadow" style={{"flex-grow": "3", "margin-top": "5px"}}>
+                            <div className="parameter-box small-shadow" style={{"flexGrow": "3", "marginTop": "5px"}}>
                                 Presets
                             </div>
                         </div>
 
-                        <div className="vert-flex" style={{"flex-grow": "2", "padding-left": "5px"}}>
-                            <div className="parameter-box small-shadow" style={{"flex-grow": "3"}}>
+                        <div className="vert-flex" style={{"flexGrow": "2", "paddingLeft": "5px"}}>
+                            <div className="parameter-box small-shadow" style={{"flexGrow": "3"}}>
                                 Param List
                             </div>
                         </div>

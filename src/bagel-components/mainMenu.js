@@ -3,6 +3,7 @@ import {
     Redirect
 } from "react-router-dom";
 import {useEffect, useState} from "react";
+import {RedirectWrapper} from "./redirectWrapper";
 
 export function Logo() {
     return(
@@ -29,10 +30,15 @@ export function Logo() {
     );
 }
 
-export function MenuButtons(props) {
+
+
+export function FullMenu(props) {
     const [redirectState, setRedirectState] = useState("");
 
     if(redirectState !== "") {
+        if(redirectState === "https://github.com/BagelQB") {
+            return (<RedirectWrapper to={redirectState} />  );
+        }
         return (<Redirect to={redirectState}/>)
     }
 
@@ -40,33 +46,23 @@ export function MenuButtons(props) {
     return (
         <>
 
-            <button className="login-button" style={{"margin-top": "100px"}} onClick={() => {
+        <div className={"menu-wrapper " + (props.visible ? "" : "menu-fadeout")}>
+            <Logo />
+            <button className="login-button" style={{"marginTop": "100px"}} onClick={() => {
                 setRedirectState("/singleplayer");
             }}>Bagel Alpha Test 1</button>
-        </>
-    );
-}
 
-export function FullMenu(props) {
-    if(!props.visible) return <></>
 
-    return (
-        <>
-
-        <div className="menu-wrapper">
-            <Logo />
-            <MenuButtons spPressEvent={() => {
-                props.playModeSetter(false);
-                props.menuSetter(false);
-            }} mpPressEvent={() => {
-                //props.playModeSetter(true);
-                //props.menuSetter(false);
-            }} />
             <div className="sign-in">
-                <p style={{"font-size": "32px", "margin-right": "15px"}}>Sign in with: </p>
-                <button className="login-button" style={{"margin-left": "5px"}}><i className="fa fa-google icon-size"></i>
+                <p style={{"fontSize": "32px", "marginRight": "15px"}}>Sign in with: </p>
+                <button className="login-button" style={{"marginLeft": "5px"}}><i className="fa fa-google icon-size"></i>
                 </button>
                 <button className="login-button"><i className="fa fa-github icon-size"></i></button>
+            </div>
+            <div className="sign-in">
+                <button className="login-button" style={{"fontSize": "24px"}} onClick={() => {
+                    setRedirectState("https://github.com/BagelQB"); ;
+                }}>View this project on Github <i className="fa fa-github icon-size"></i></button>
             </div>
         </div>
 
