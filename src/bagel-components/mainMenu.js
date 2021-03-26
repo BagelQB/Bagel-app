@@ -49,7 +49,7 @@ export function FullMenu(props) {
         <div className={"menu-wrapper " + (props.visible ? "" : "menu-fadeout")}>
             <Logo />
             <button className="login-button" style={{"marginTop": "100px"}} onClick={() => {
-                setRedirectState("/singleplayer");
+                setRedirectState("/singleplayer/alpha");
             }}>Bagel Alpha Test 1</button>
 
 

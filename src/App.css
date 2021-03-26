@@ -691,7 +691,7 @@ body {
   color: #c51f5d;
   transition: 0.2s;
   padding: 10px 30px 10px 30px;
-  border-radius: 2em;
+  border-radius: 10px;
   align-self: center;
   margin: 5px;
   font-size: 32px;

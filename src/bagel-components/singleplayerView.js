@@ -2,8 +2,10 @@
 import {
     Redirect, useHistory
 } from "react-router-dom";
-import {useRef, useState} from "react";
+import {useEffect, useRef, useState} from "react";
 import {FullMenu} from "./mainMenu";
+
+let axios = require("axios");
 
 export function PlayControlButton(props) {
     if(props.pressed) {
@@ -12,6 +14,24 @@ export function PlayControlButton(props) {
         return (<button className="play-controls-unpressed" onClick={props.clickEvent}>{props.children}</button>);
     }
 
+}
+
+function TossupText(params) {
+
+    const [text, setText] = useState("");
+
+    useEffect(() => {
+        axios.get(`http://localhost:8080/api/tossups?type=cat&cat=${params.category[0]}&limit=1`).then((res) => {
+            setText(res.data.data[0].text);
+            params.onRetrieve();
+        })
+    }, [params.num])
+
+    return (
+        <>
+            {text}
+        </>
+    )
 }
 
 export function SingleplayerViewer() {
@@ -23,6 +43,9 @@ export function SingleplayerViewer() {
     const [nextSet, setNextSet] = useState(false);
     const [buzzed, setBuzzed] = useState(false);
     const [answer, setAnswer] = useState("");
+    const [tossupNum, setTossupNum] = useState(1);
+
+
     let history = useHistory();
     const answerRef = useRef(null);
 
@@ -60,7 +83,7 @@ export function SingleplayerViewer() {
                             <div className="flex-space">
                                 <PlayControlButton pressed={settingsOpen} clickEvent={() => {setSettingsOpen(true)}}><i className="fa fa-gear"></i> SETTINGS</PlayControlButton>
                                 <PlayControlButton pressed={isPlaying} clickEvent={() => {setIsPlaying(!isPlaying); setBuzzed(false)}}><i className="fa fa-play"></i> PLAY</PlayControlButton>
-                                <PlayControlButton pressed={nextSet} clickEvent={() => {setNextSet(!nextSet)}}><i className="fa fa-forward"></i> NEXT</PlayControlButton>
+                                <PlayControlButton pressed={nextSet} clickEvent={() => {setNextSet(true); setTossupNum(tossupNum + 1)}}><i className="fa fa-forward"></i> NEXT</PlayControlButton>
                             </div>
 
                         </div>
@@ -73,7 +96,7 @@ export function SingleplayerViewer() {
                                     setAnswer("");
                                     setBuzzed(false);
                                 }}><i className="fa fa-play"></i></PlayControlButton>
-                                <PlayControlButton pressed={nextSet} clickEvent={() => {setNextSet(!nextSet)}}><i className="fa fa-forward"></i></PlayControlButton>
+                                <PlayControlButton pressed={nextSet} clickEvent={() => {setNextSet(true); setTossupNum(tossupNum + 1)}}><i className="fa fa-forward"></i></PlayControlButton>
                                 <PlayControlButton pressed={buzzed} clickEvent={() => {
 
                                     if(!buzzed === true) {
@@ -91,15 +114,9 @@ export function SingleplayerViewer() {
                         <div className={"question-view-bg qbg-unlit " + (isPlaying ? (buzzed ? "qbg-yellow " : "qbg-red") : "") }>
                             <div className="question-view">
                                 <div className="parameter-header shadow">Tossup 1 - Geography American</div>
-                                Soldiers adhering to this religion prayed to a goddess of light and the sun named Marici
-                                before battles.People float paper lanterns down a river at the culmination of a three-day
-                                summer festival in this religionfor honoring ancestors, called Obon. Atop Mount Hiei, many
-                                members of this religion's clergy trained forcombat. Two esoteric schools of this religion,
-                                introduced by Kukai and Saicho, were respectively known as(*)) Shingon and Tendai.
-                                Practitioners of one form of this religion strive to attain an initial insight known as
-                                kensho,or satori, and practice the contemplation of statements and questions known as koans.
-                                For 10 points, name thisreligion which has blended heavily with Shinto in Japan, where the
-                                "Zen" type is particularly popular.
+                                <TossupText difficulty={[1]} category={[15]} num={tossupNum} onRetrieve={() => {
+                                    setNextSet(false);
+                                }} />
                             </div>
                         </div>
                         <div className={"answer-box-bg qbg-unlit " + (buzzed ? "qbg-timer" : "")}>
