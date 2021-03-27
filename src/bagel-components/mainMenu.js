@@ -1,4 +1,3 @@
-
 import {
     Redirect, useHistory
 } from "react-router-dom";
@@ -7,7 +6,7 @@ import {RedirectWrapper} from "./redirectWrapper";
 import {DelayedRedirect} from "./singleplayerView";
 
 export function Logo(props) {
-    return(
+    return (
         <div className={props.fadeIn ? "menu-fadein" : ""}>
             <div className="logo-wrapper">
                 <div className={"outer-circle " + (props.fade ? "logo-animation logo-slow" : "")}>
@@ -23,7 +22,8 @@ export function Logo(props) {
 
 
             </div>
-            <div className= {"logo-text-wrapper logo-text-wrapper-sub " + (props.fade ? "logo-animation logo-sub-slow" : "")}>
+            <div
+                className={"logo-text-wrapper logo-text-wrapper-sub " + (props.fade ? "logo-animation logo-sub-slow" : "")}>
                 The premier quizbowl practice tool
             </div>
 
@@ -32,52 +32,87 @@ export function Logo(props) {
 }
 
 
-
 export function FullMenu(props) {
-
     let history = useHistory();
+    let [hoverMenuStyle, updateHoverMenuStyle] = useState({
+        visibility: "hidden",
+        opacity: 0
+    });
     const [redirectState, setRedirectState] = useState("");
 
-    let redirect = <DelayedRedirect to={redirectState} delay={600} />
+    let redirect = <DelayedRedirect to={redirectState} delay={600}/>
 
-    if(redirectState === "") {
+    if (redirectState === "") {
         redirect = null;
     }
-
 
     return (
         <>
             {redirect}
-            <Logo fade={history.action === "POP"} fadeIn={history.action === "REPLACE"} />
-        <div className={"menu-wrapper " + (props.visible ? (history.action === "REPLACE" ? "menu-fadein" : "") : "menu-fadeout ")}>
-
-            <div className={"flex-horizontal"}>
-                <div style={{"flexGrow": "2", "marginTop": "100px", "marginBottom": "100px"}}>
-                    <br/><a className={"menu-button"} href="#" onClick={() => {setRedirectState("/singleplayer/alpha")}}>Play</a>
-                    <br/>
-                    <a href="#" className={"menu-button"}>Settings</a>
-                    <br/>
-                    <a href="#" className={"menu-button"}>Credits</a>
+            <Logo fade={history.action === "POP"} fadeIn={history.action === "REPLACE"}/>
+            <div
+                className={"menu-wrapper " + (props.visible ? (history.action === "REPLACE" ? "menu-fadein" : "") : "menu-fadeout ")}>
+                <div className={"flex-horizontal"}>
+                    <div style={{"flexGrow": "2", "marginTop": "100px", "marginBottom": "100px"}}>\
+                        <br/>
+                        <div id="play-button-container" onMouseEnter={() => {
+                            updateHoverMenuStyle({
+                                visibility: "visible",
+                                opacity: 1
+                            });
+                        }} onMouseLeave={() => {
+                            updateHoverMenuStyle({
+                                visibility: "hidden",
+                                opacity: 0
+                            });
+                        }}>
+                            <a className={"menu-button"} href="#"
+                               onClick={() => {
+                                   setRedirectState("/singleplayer/alpha")
+                               }}>Play</a>
+                        </div>
+                        <br/>
+                        <a href="#" className={"menu-button"}>Settings</a>
+                        <br/>
+                        <a href="#" className={"menu-button"}>Credits</a>
+                    </div>
+                    <div className={"menu-divider"}/>
+                    <div style={{"flexGrow": "2"}} className={"menu-description-text vert-flex"}>
+                        <div className="hover-menu" onMouseEnter={() => {
+                            updateHoverMenuStyle({
+                                visibility: "visible",
+                                opacity: 1
+                            });
+                        }} onMouseLeave={() => {
+                            updateHoverMenuStyle({
+                                visibility: "hidden",
+                                opacity: 0
+                            });
+                        }} style={hoverMenuStyle}>
+                            <a href="#" className={"menu-button"}>Offline TKs</a>
+                            <a href="#" className={"menu-button"}>Online TKs</a>
+                            <a href="#" className={"menu-button"}>Offline PKs</a>
+                            <a href="#" className={"menu-button"}>Online PKs</a>
+                        </div>
+                    </div>
+                    <div className={"menu-divider"}/>
+                    <div className={"menu-description-text"}>
+                        <div className={"menu-account-status"}>You are not signed in.</div>
+                        <br/>
+                        <div style={{"textAlign": "center"}}>Sign in to play Bagel Multiplayer and to save your game
+                            stats.
+                        </div>
+                        <br/><br/>
+                        <a className={"login-button"} href="#">Sign in with <i
+                            className={"fa fa-google"}></i> Google</a>
+                        <a className={"login-button"} href="#">Sign in with <i
+                            className={"fa fa-github"}></i> Github</a>
+                        <br/><br/><br/><br/><br/>
+                        <div style={{"textAlign": "center"}}>Sign-in is not required for singleplayer play.</div>
+                    </div>
                 </div>
-
-                <div className={"menu-divider"} />
-                <div className={"menu-description-text"}>
-                    Testing testing 123. This div element will be where information will be displayed when a button on the left is hovered, and will act as a sub menu when one of them is clicked.
-                </div>
-                <div className={"menu-divider"} />
-                <div className={"menu-description-text"}>
-                    <div className={"menu-account-status"}>You are not signed in.</div><br/>
-                    <div style={{"textAlign": "center"}}>Sign in to play Bagel Multiplayer and to save your game stats.</div>
-                    <br/><br/>
-                    <a className={"login-button"} href="#">Sign in with <i className={"fa fa-google"}></i> Google</a>
-                    <a className={"login-button"} href="#">Sign in with <i className={"fa fa-github"}></i> Github</a>
-                    <br /><br /><br /><br /><br />
-                    <div style={{"textAlign": "center"}}>Sign-in is not required for singleplayer play.</div>
-                </div>
-
             </div>
-        </div>
-            <div className={"redirect-cover"} style={{"display": redirectState === "" ? "none" : "block"}} />
+            <div className={"redirect-cover"} style={{"display": redirectState === "" ? "none" : "block"}}/>
 
         </>
     )
