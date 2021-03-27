@@ -5,6 +5,24 @@ body {
   text-align: left;
 }
 
+.redirect-cover {
+  display: block; /* Hidden by default */
+  position: fixed; /* Stay in place */
+  z-index: 9999; /* Sit on top */
+  left: 0;
+  top: 0;
+  width: 100%; /* Full width */
+  height: 100%; /* Full height */
+  overflow: auto; /* Enable scroll if needed */
+  background-color: #141d26;
+  opacity: 0;
+  animation-name: fadeIn;
+  animation-duration: 0.6s;
+  animation-fill-mode: forwards;
+  font-family: Roboto;
+  color: white;
+}
+
 
 .outer-circle-b {
   position: relative;
@@ -44,13 +62,8 @@ body {
   left: 20px;
   top: 20px;
   border-radius: 50%;
-  background: #141d26;
+  background: #b50f4d;
   z-index: 5;
-  background-image: linear-gradient(90deg, #141d26 20%, #c51f5d, #b50f4d 50%, #b50f4d 100%);
-  background-size: 500% 500%;
-  animation: animatedgradientMenu 2s forwards;
-  animation-delay: 1s;
-  animation-iteration-count: 1;
 }
 
 .outer-circle {
@@ -60,14 +73,59 @@ body {
   display: inline-block;
 
   border-radius: 50%;
-  background: #141d26;
+  background: #b50f4d;
   z-index: 5;
-  background-image: linear-gradient(90deg, #141d26 20%, #c51f5d, #b50f4d 50%, #b50f4d 100%);
 
-  background-size: 500% 500%;
-  animation: animatedgradientMenu 2s forwards;
+
+
   animation-delay: 1s;
   animation-iteration-count: 1;
+}
+
+.logo-animation {
+  background: #b50f4d;
+  background-image: linear-gradient(90deg, #141d26 20%, #c51f5d, #b50f4d 50%, #b50f4d 100%);
+  background-size: 500% 500%;
+  animation: animatedgradientMenu 2s forwards;
+  animation-delay: 0s;
+}
+
+.logo-slow {
+  animation-delay: 1s;
+}
+
+.logo-sub-slow {
+  animation-delay: 2s;
+}
+
+.menu-button {
+  color: white;
+  text-transform: uppercase;
+  text-decoration: none;
+  display: inline-block;
+  padding: 15px 20px;
+  position: relative;
+  font-family: Roboto;
+  width: 150px;
+  text-align: center;
+  font-size: 24px;
+  margin-bottom: 30px;
+}
+
+.menu-button:after {
+  bottom: 0;
+  content: "";
+  display: block;
+  height: 2px;
+  left: 0;
+  position: absolute;
+  background: #c51f5d;
+  transition: width 0.3s ease 0s, left 0.3s ease 0s;
+  width: 0;
+}
+.menu-button:hover:after {
+  width: 100%;
+  left: 0;
 }
 
 .logo-text-wrapper {
@@ -76,25 +134,24 @@ body {
   justify-content: center;
   margin-left: 20px;
   font-family: Comfortaa;
+  text-align: center;
 
   font-size: 56px;
-  background-color: #f3ec78;
-  background-image: linear-gradient(90deg, #141d26 20%, #c51f5d, #b50f4d 50%, #b50f4d 100%);
-  background-size: 500% 500%;
-  animation: animatedgradientMenu 3s forwards;
+  background-color: #b50f4d;
+
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
 
 .logo-text-wrapper-sub {
-  animation-delay: 3s;
+
   font-size: 24px;
   margin-top: 15px;
 }
 
 .logo-wrapper {
   align-content: center;
-  margin-top: 30px;
+  margin-top: 50px;
   color: white;
   display: flex;
   flex-flow: row nowrap;
@@ -166,7 +223,8 @@ body {
   display: flex;
   flex-flow: column nowrap;
   align-items: center;
-  justify-content: center;
+  justify-content: left;
+  padding-top: 100px;
 }
 
 .menu-fadeout {
@@ -174,6 +232,13 @@ body {
   animation-iteration-count: 1;
   opacity: 0;
   pointer-events: none;
+}
+
+.menu-fadein {
+  animation: fadeIn 0.6s ease;
+  animation-iteration-count: 1;
+  animation-fill-mode: forwards;
+  opacity: 0;
 }
 
 @keyframes fadeOut {
@@ -345,10 +410,34 @@ body {
   justify-content: space-between;
 }
 
+.flex-horizontal {
+  display: flex;
+  justify-content: center;
+}
+
 .flex-space {
   display: flex;
   justify-content: space-evenly;
   width: 100%;
+}
+
+.menu-divider {
+  background-color: white;
+  width: 2px;
+  margin-left: 40px;
+  margin-right: 40px;
+}
+
+.menu-account-status {
+  width: 350px;
+  font-size: 24px;
+  text-align: center;
+}
+
+.menu-description-text {
+  color: white;
+  font-family: Roboto;
+  max-width: 350px;
 }
 
 .play-controls-unpressed {
@@ -496,8 +585,6 @@ body {
   background-color: #0f1821;
   border:none;
   color: white;
-
-
 }
 
 .answer-box-input-disabled {
@@ -651,6 +738,7 @@ body {
 }
 
 
+
 .modal-content {
   position: fixed;
   bottom: 10%;
@@ -686,23 +774,38 @@ body {
 }
 
 .login-button{
-  background-color: #141d26;
-  border: 3px solid #c51f5d;
-  color: #c51f5d;
-  transition: 0.2s;
-  padding: 10px 30px 10px 30px;
-  border-radius: 10px;
-  align-self: center;
-  margin: 5px;
-  font-size: 32px;
-  font-family: Comfortaa;
+  color: white;
+  text-transform: uppercase;
+  text-decoration: none;
+  display: inline-block;
+  padding: 15px 0px;
+  position: relative;
+  font-family: Roboto;
+  width: 150px;
+  text-align: center;
+  font-size: 16px;
+  margin-bottom: 30px;
+  width: 350px;
 }
 
-.login-button:hover {
-  background-color: #362028;
-  cursor: pointer;
-  color: white;
+.login-button:after {
+  bottom: 0;
+  content: "";
+  display: block;
+  height: 2px;
+  left: 0;
+  position: absolute;
+  background: #c51f5d;
+  transition: width 0.3s ease 0s, left 0.3s ease 0s;
+  width: 0;
 }
+.login-button:hover:after {
+  width: 100%;
+  left: 0;
+}
+
+
+
 
 .icon-size{font-size: 20px !important;}
 

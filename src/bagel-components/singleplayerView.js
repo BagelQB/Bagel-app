@@ -4,6 +4,7 @@ import {
 } from "react-router-dom";
 import {useEffect, useRef, useState} from "react";
 import {FullMenu} from "./mainMenu";
+import {RedirectWrapper} from "./redirectWrapper";
 
 let axios = require("axios");
 
@@ -34,6 +35,22 @@ function TossupText(params) {
     )
 }
 
+export function DelayedRedirect(params) {
+    const [canRedirect, setCanRedirect] = useState(false);
+
+    useEffect(() => {
+        setTimeout(() => {
+            setCanRedirect(true);
+        }, params.delay)
+    }, [])
+
+    if(canRedirect) {
+        return <Redirect to={params.to} />
+    } else {
+        return <></>
+    }
+}
+
 export function SingleplayerViewer() {
 
     const [redirectState, setRedirectState] = useState("");
@@ -49,19 +66,17 @@ export function SingleplayerViewer() {
     let history = useHistory();
     const answerRef = useRef(null);
 
-    if(redirectState !== "") {
-        return (<Redirect to={redirectState}/>)
+
+    let redirect = <DelayedRedirect to={redirectState} delay={600} />
+
+    if(redirectState === "") {
+        redirect = null;
     }
 
-    let menu = <FullMenu visible={false} />;
-
-    if(history.action !== "REPLACE") {
-        menu = null;
-    }
 
     return(
         <>
-            {menu}
+            {redirect}
         <div className={"main-wrapper " + (history.action === "REPLACE" ? "main-wrapper-fadein" : "")}>
 
             <div className="nav-bar shadow">
@@ -245,6 +260,9 @@ export function SingleplayerViewer() {
         </div>
 
     </div>
+
+    <div className={"redirect-cover"} style={{"display": redirectState === "" ? "none" : "block"}} />
+
 
         </>
 
