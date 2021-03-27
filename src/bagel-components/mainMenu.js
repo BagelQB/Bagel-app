@@ -66,10 +66,7 @@ export function FullMenu(props) {
                                 opacity: 0
                             });
                         }}>
-                            <div className={"menu-button"} href="#"
-                               onClick={() => {
-                                   setRedirectState("/singleplayer/alpha")
-                               }}>Play</div>
+                            <div className={"menu-button"} href="#">Play</div>
                         </div>
                         <br/>
                         <div className={"menu-button"}>Settings</div>
@@ -89,9 +86,10 @@ export function FullMenu(props) {
                                 opacity: 0
                             });
                         }} style={hoverMenuStyle}>
-                            <div className={"menu-button"}>Singleplayer</div>
+                            <div className={"menu-button"} onClick={() => {
+                                setRedirectState("/singleplayer/alpha")
+                            }}>Singleplayer</div>
                             <div className={"menu-button"}>Multiplayer</div>
-                            <div className={"menu-button"}>Buzzer (maybe)</div>
                         </div>
                     </div>
                     <div className={"menu-divider"}/>

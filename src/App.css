@@ -106,7 +106,7 @@ body {
     padding: 15px 20px;
     position: relative;
     font-family: Roboto;
-    width: 150px;
+    width: 200px;
     text-align: center;
     font-size: 24px;
     margin-bottom: 30px;
@@ -316,7 +316,6 @@ html, body {
 .main-wrapper-fadein {
     opacity: 0;
     animation: fadeIn 0.6s;
-    animation-delay: 0.4s;
     animation-iteration-count: 1;
     animation-fill-mode: forwards;
 }
