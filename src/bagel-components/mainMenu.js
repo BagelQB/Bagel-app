@@ -2,8 +2,17 @@ import {
     Redirect, useHistory
 } from "react-router-dom";
 import {useEffect, useState} from "react";
-import {RedirectWrapper} from "./redirectWrapper";
 import {DelayedRedirect} from "./singleplayerView";
+import {
+    FirebaseAuthConsumer, IfFirebaseAuthed, IfFirebaseUnAuthed
+} from "@react-firebase/auth";
+import "firebase/auth";
+
+import firebase from "firebase/app";
+import "firebase/auth";
+
+const googleAuthProvider = new firebase.auth.GoogleAuthProvider();
+const githubAuthProvider = new firebase.auth.GithubAuthProvider();
 
 export function Logo(props) {
     return (
@@ -31,6 +40,18 @@ export function Logo(props) {
     );
 }
 
+function SafeFirebaseQuery(props) {
+    if(props.type === "name") {
+        if(firebase.auth().currentUser && firebase.auth().currentUser.displayName) {
+            return <>{firebase.auth().currentUser.displayName}</>
+        } else {
+            return <></>
+        }
+    }
+
+
+    return <></>
+}
 
 export function FullMenu(props) {
     let history = useHistory();
@@ -93,20 +114,40 @@ export function FullMenu(props) {
                         </div>
                     </div>
                     <div className={"menu-divider"}/>
-                    <div className={"menu-description-text"}>
-                        <div className={"menu-account-status"}>You are not signed in.</div>
-                        <br/>
-                        <div style={{"textAlign": "center"}}>Sign in to play Bagel Multiplayer and to save your game
-                            stats.
+                    <IfFirebaseUnAuthed>
+                        <div className={"menu-description-text"}>
+                            <div className={"menu-account-status"}>You are not signed in.</div>
+                            <br/>
+                            <div style={{"textAlign": "center"}}>Sign in to play Bagel Multiplayer and to save your game
+                                stats.
+                            </div>
+                            <br/><br/>
+                            <div className={"login-button"} onClick={() => {
+                                firebase.auth().signInWithPopup(googleAuthProvider);
+                            }}>Sign in with <i
+                                className={"fa fa-google"}></i> Google</div>
+                            <div className={"login-button"} onClick={() => {
+                                firebase.auth().signInWithPopup(githubAuthProvider);
+                            }}>Sign in with <i
+                                className={"fa fa-github"}></i> Github</div>
+                            <br/><br/><br/><br/><br/>
+                            <div style={{"textAlign": "center"}}>Sign-in is not required for singleplayer play.</div>
                         </div>
-                        <br/><br/>
-                        <div className={"login-button"} >Sign in with <i
-                            className={"fa fa-google"}></i> Google</div>
-                        <div className={"login-button"}>Sign in with <i
-                            className={"fa fa-github"}></i> Github</div>
-                        <br/><br/><br/><br/><br/>
-                        <div style={{"textAlign": "center"}}>Sign-in is not required for singleplayer play.</div>
-                    </div>
+                    </IfFirebaseUnAuthed>
+                    <IfFirebaseAuthed>
+                        <div className={"menu-description-text"}>
+                            <div className={"menu-account-status"}>You are signed in</div>
+                            <br/>
+                            <div style={{"textAlign": "center"}}>Welcome back, <SafeFirebaseQuery type={"name"}/></div>
+                            <br/><br/><br/><br/><br/><br/><br/>
+                            <div style={{"textAlign": "center"}}>insert secret account data here muahahah</div>
+                            <br/><br/><br/><br/><br/><br/><br/>
+
+                            <div className={"login-button"} onClick={() => {
+                                firebase.auth().signOut();
+                            }}>Sign out</div>
+                        </div>
+                    </IfFirebaseAuthed>
                 </div>
             </div>
             <div className={"redirect-cover"} style={{"display": redirectState === "" ? "none" : "block"}}/>

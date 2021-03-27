@@ -1,40 +1,47 @@
 import './App.css';
 import {FullMenu} from './bagel-components/mainMenu';
 import {SingleplayerViewer} from './bagel-components/singleplayerView';
-
+import {
+    FirebaseAuthProvider
+} from "@react-firebase/auth";
+import firebase from "firebase/app";
+import "firebase/auth";
 
 import {
     BrowserRouter as Router,
     Switch,
     Route,
-    Redirect, useHistory
+    Redirect
 } from "react-router-dom";
 
+const firebaseCreds = require("./firebase.json");
 
 function App() {
 
 
 
   return (
-      <Router>
-          <Switch>
+      <FirebaseAuthProvider {...firebaseCreds} firebase={firebase}>
+          <Router>
+              <Switch>
 
-              <Route path={"/menu"}>
-                  <FullMenu visible={true}></FullMenu>
-              </Route>
-              <Route path={"/singleplayer"}>
-                  <SingleplayerViewer />
-              </Route>
-              <Route path={"/multiplayer"}>
-                  bbb
-              </Route>
-              <Route path={"/"}>
-                  <Redirect to={"/menu"}/>
-              </Route>
-          </Switch>
+                  <Route path={"/menu"}>
+                      <FullMenu visible={true}></FullMenu>
+                  </Route>
+                  <Route path={"/singleplayer"}>
+                      <SingleplayerViewer />
+                  </Route>
+                  <Route path={"/multiplayer"}>
+                      bbb
+                  </Route>
+                  <Route path={"/"}>
+                      <Redirect to={"/menu"}/>
+                  </Route>
+              </Switch>
 
 
-      </Router>
+          </Router>
+      </FirebaseAuthProvider>
 
   );
 }
