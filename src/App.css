@@ -125,6 +125,10 @@ body {
     width: 0;
 }
 
+.menu-button:hover {
+    cursor: pointer;
+}
+
 .menu-button:hover:after {
     width: 100%;
     left: 0;
@@ -630,6 +634,14 @@ body {
     min-height: 0;
 }
 
+.vert-flex-c {
+    display: flex;
+    flex-flow: column nowrap;
+    height: 100%;
+    min-height: 0;
+    justify-content: center;
+}
+
 
 .option-header {
     background-color: #343d46;
@@ -771,6 +783,10 @@ body {
     font-size: 16px;
     margin-bottom: 30px;
     width: 350px;
+}
+
+.login-button:hover {
+    cursor: pointer;
 }
 
 .login-button:after {

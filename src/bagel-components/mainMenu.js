@@ -66,19 +66,19 @@ export function FullMenu(props) {
                                 opacity: 0
                             });
                         }}>
-                            <a className={"menu-button"} href="#"
+                            <div className={"menu-button"} href="#"
                                onClick={() => {
                                    setRedirectState("/singleplayer/alpha")
-                               }}>Play</a>
+                               }}>Play</div>
                         </div>
                         <br/>
-                        <a href="#" className={"menu-button"}>Settings</a>
+                        <div className={"menu-button"}>Settings</div>
                         <br/>
-                        <a href="#" className={"menu-button"}>Credits</a>
+                        <div className={"menu-button"}>Credits</div>
                     </div>
                     <div className={"menu-divider"}/>
-                    <div style={{"flexGrow": "2"}} className={"menu-description-text vert-flex"}>
-                        <div className="hover-menu" onMouseEnter={() => {
+                    <div style={{"flexGrow": "2"}} className={"menu-description-text"}>
+                        <div className="hover-menu vert-flex-c" onMouseEnter={() => {
                             updateHoverMenuStyle({
                                 visibility: "visible",
                                 opacity: 1
@@ -89,10 +89,9 @@ export function FullMenu(props) {
                                 opacity: 0
                             });
                         }} style={hoverMenuStyle}>
-                            <a href="#" className={"menu-button"}>Offline TKs</a>
-                            <a href="#" className={"menu-button"}>Online TKs</a>
-                            <a href="#" className={"menu-button"}>Offline PKs</a>
-                            <a href="#" className={"menu-button"}>Online PKs</a>
+                            <div className={"menu-button"}>Singleplayer</div>
+                            <div className={"menu-button"}>Multiplayer</div>
+                            <div className={"menu-button"}>Buzzer (maybe)</div>
                         </div>
                     </div>
                     <div className={"menu-divider"}/>
@@ -103,10 +102,10 @@ export function FullMenu(props) {
                             stats.
                         </div>
                         <br/><br/>
-                        <a className={"login-button"} href="#">Sign in with <i
-                            className={"fa fa-google"}></i> Google</a>
-                        <a className={"login-button"} href="#">Sign in with <i
-                            className={"fa fa-github"}></i> Github</a>
+                        <div className={"login-button"} >Sign in with <i
+                            className={"fa fa-google"}></i> Google</div>
+                        <div className={"login-button"}>Sign in with <i
+                            className={"fa fa-github"}></i> Github</div>
                         <br/><br/><br/><br/><br/>
                         <div style={{"textAlign": "center"}}>Sign-in is not required for singleplayer play.</div>
                     </div>
