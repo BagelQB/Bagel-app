@@ -4,12 +4,13 @@ import {
 import {useEffect, useState} from "react";
 import {DelayedRedirect} from "./singleplayerView";
 import {
-    FirebaseAuthConsumer, IfFirebaseAuthed, IfFirebaseUnAuthed
+    IfFirebaseAuthed, IfFirebaseUnAuthed
 } from "@react-firebase/auth";
 import "firebase/auth";
 
 import firebase from "firebase/app";
 import "firebase/auth";
+import axios from "axios";
 
 const googleAuthProvider = new firebase.auth.GoogleAuthProvider();
 const githubAuthProvider = new firebase.auth.GithubAuthProvider();
@@ -123,7 +124,23 @@ export function FullMenu(props) {
                             </div>
                             <br/><br/>
                             <div className={"login-button"} onClick={() => {
-                                firebase.auth().signInWithPopup(googleAuthProvider);
+
+                                // Get data or create account.
+                                firebase.auth().signInWithPopup(googleAuthProvider).then((res) => {
+                                    console.log("signin");
+                                    firebase.auth().currentUser.getIdToken(true).then((token) => {
+                                        console.log("token");
+                                        axios.get(`http://localhost:8080/api/users/?id=${firebase.auth().currentUser.uid}&auth=${token}`).then((res) => {
+                                            console.log("got data mstokc");
+                                        }).catch((err) => {
+                                            console.log("doing the post thing")
+                                            axios.post(`http://localhost:8080/api/users/?auth=${token}`).then((res2) => {
+                                                console.log(res2);
+                                            }).catch((err2) => {console.log(err2);})
+                                        })
+                                    })
+                                });
+
                             }}>Sign in with <i
                                 className={"fa fa-google"}></i> Google</div>
                             <div className={"login-button"} onClick={() => {
@@ -139,9 +156,9 @@ export function FullMenu(props) {
                             <div className={"menu-account-status"}>You are signed in</div>
                             <br/>
                             <div style={{"textAlign": "center"}}>Welcome back, <SafeFirebaseQuery type={"name"}/></div>
-                            <br/><br/><br/><br/><br/><br/><br/>
+
                             <div style={{"textAlign": "center"}}>insert secret account data here muahahah</div>
-                            <br/><br/><br/><br/><br/><br/><br/>
+
 
                             <div className={"login-button"} onClick={() => {
                                 firebase.auth().signOut();
