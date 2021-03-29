@@ -238,6 +238,7 @@ body {
 }
 
 
+
 html, body {
     height: 100%;
     margin: 0;
@@ -250,6 +251,28 @@ html, body {
     border: solid 2px #c51f5d;
     border-radius: 50%;
     display: inline-block;
+}
+
+.connection-status {
+    background-color: #4f5861;
+    padding: 10px;
+    border-radius: 5px;
+}
+
+.connection-text {
+    font-size: 14px;
+}
+
+.conn-red {
+    color: #cc0000;
+}
+
+.conn-yellow {
+    color: #d4af37;
+}
+
+.conn-green {
+    color: #00aa00;
 }
 
 .inner-circle-t {

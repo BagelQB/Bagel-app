@@ -11,6 +11,7 @@ import "firebase/auth";
 import firebase from "firebase/app";
 import "firebase/auth";
 import axios from "axios";
+import {ConnectionIndicator} from "./websocketComponents";
 
 const googleAuthProvider = new firebase.auth.GoogleAuthProvider();
 const githubAuthProvider = new firebase.auth.GithubAuthProvider();
@@ -41,18 +42,39 @@ export function Logo(props) {
     );
 }
 
-function SafeFirebaseQuery(props) {
-    if(props.type === "name") {
-        if(firebase.auth().currentUser && firebase.auth().currentUser.displayName) {
-            return <>{firebase.auth().currentUser.displayName}</>
+let localUserData = {};
+function SecureDBQuery(props) {
+
+    const [text, setText] = useState("");
+    const [refreshed, setRefreshed] = useState(false);
+
+    useEffect(() => {
+        if(props.refresh) {
+            if(refreshed) return;
+            setRefreshed(true);
+            if(firebase.auth().currentUser) {
+                firebase.auth().currentUser.getIdToken(false).then((token) => {
+                    axios.get(`http://localhost:8080/api/users/?id=${firebase.auth().currentUser.uid}&auth=${token}`).then((user) => {
+                        localUserData = user.data.data;
+                        console.log(localUserData);
+                        setText(localUserData[props.query]);
+                    }).catch((err) => {
+                        console.log(err);
+                        setText("!Server Error!");
+                    })
+                });
+            }
         } else {
-            return <></>
+            console.log(localUserData);
+            setText(localUserData[props.query]);
         }
-    }
+    }, [localUserData]);
 
 
-    return <></>
+    return <>{text}</>
 }
+
+
 
 export function FullMenu(props) {
     let history = useHistory();
@@ -131,7 +153,7 @@ export function FullMenu(props) {
                                     firebase.auth().currentUser.getIdToken(true).then((token) => {
                                         console.log("token");
                                         axios.get(`http://localhost:8080/api/users/?id=${firebase.auth().currentUser.uid}&auth=${token}`).then((res) => {
-                                            console.log("got data mstokc");
+                                            localUserData = res.data.data;
                                         }).catch((err) => {
                                             console.log("doing the post thing")
                                             axios.post(`http://localhost:8080/api/users/?auth=${token}`).then((res2) => {
@@ -155,9 +177,9 @@ export function FullMenu(props) {
                         <div className={"menu-description-text"}>
                             <div className={"menu-account-status"}>You are signed in</div>
                             <br/>
-                            <div style={{"textAlign": "center"}}>Welcome back, <SafeFirebaseQuery type={"name"}/></div>
-
-                            <div style={{"textAlign": "center"}}>insert secret account data here muahahah</div>
+                            <div style={{"textAlign": "center"}}>Welcome back, <SecureDBQuery query={"name"} refresh={true} /></div>
+                            <br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/>
+                            <ConnectionIndicator />
 
 
                             <div className={"login-button"} onClick={() => {
