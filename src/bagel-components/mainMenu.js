@@ -16,6 +16,16 @@ import {ConnectionIndicator} from "./websocketComponents";
 const googleAuthProvider = new firebase.auth.GoogleAuthProvider();
 const githubAuthProvider = new firebase.auth.GithubAuthProvider();
 
+let localUserData = {};
+
+
+/**
+ * Returns the Bagel Logo.
+ * @param {Object} props - React props.
+ * @param {Boolean} props.fadeIn - If the logo should run the fade in animation
+ * @param {Boolean} props.fade - If the logo should run the shining intro animation.
+ * @returns {Object} - The Bagel Logo
+ */
 export function Logo(props) {
     return (
         <div className={props.fadeIn ? "menu-fadein" : ""}>
@@ -42,7 +52,14 @@ export function Logo(props) {
     );
 }
 
-let localUserData = {};
+
+/**
+ * Returns text based on the query from the secure database, without erroring out if the user is not logged in yet.
+ * @param {Object} props - React props.
+ * @param {Boolean} props.refresh - If the component should make a new query to get the data or if it should use stored local data
+ * @param {String} props.query - What data the component should get from the secure databased.
+ * @returns {Object} - The text with values from the database.
+ */
 function SecureDBQuery(props) {
 
     const [text, setText] = useState("");
@@ -75,7 +92,12 @@ function SecureDBQuery(props) {
 }
 
 
-
+/**
+ * Wrapper for the Bagel main menu.
+ * @param {Object} props - React props.
+ * @param {Boolean} props.visible - If the menu should be visible.
+ * @returns {Object} - The bagel main menu
+ */
 export function FullMenu(props) {
     let history = useHistory();
     let [hoverMenuStyle, updateHoverMenuStyle] = useState({

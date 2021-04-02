@@ -1,8 +1,12 @@
-import {
-    Redirect
-} from "react-router-dom";
 import {useEffect} from "react";
 
+/**
+ * Provides a wrapper around a redirect to redirect to outside websites.
+ * @param {Object} params - React params.
+ * @param {String} params.to - the link to redirect to
+ * @param {String} params.locationName - The location name to display
+ * @returns {Object} - The redirect modal
+ */
 export function RedirectWrapper(params) {
     useEffect(() => {
         window.location.href = params.to;
@@ -18,7 +22,7 @@ export function RedirectWrapper(params) {
                 </div>
 
                 <p>
-                    Redirecting to Github.
+                    Redirecting to {params.locationName}.
                 </p>
             </div>
 

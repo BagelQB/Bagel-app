@@ -5,9 +5,18 @@ import {
 import {useEffect, useRef, useState} from "react";
 import {FullMenu} from "./mainMenu";
 import {RedirectWrapper} from "./redirectWrapper";
+import Typed from "typed.js/src/typed";
 
 let axios = require("axios");
 
+/**
+ * Component that returns the proper-looking button given if it's pressed or not.
+ * @param {Object} props - React props.
+ * @param {Boolean} props.pressed - If the button is pressed or not.
+ * @param {Object} props.children - Objects that should be rendered in the button
+ * @param {Function} props.clickEvent - the function that should fire when the button is pressed.
+ * @returns {Object} - A pink button that can be used in the play control section.
+ */
 export function PlayControlButton(props) {
     if(props.pressed) {
         return (<button className="play-controls-pressed" onClick={props.clickEvent}>{props.children}</button>);
@@ -17,24 +26,68 @@ export function PlayControlButton(props) {
 
 }
 
-function TossupText(params) {
+/**
+ * Component that contains tossup data.
+ * @returns {Object} - The tossup text that matches the parameters
+ */
+function TossupController(params) {
 
-    const [text, setText] = useState("");
-
-    useEffect(() => {
-        axios.get(`http://localhost:8080/api/tossups?type=cat&cat=${params.category[0]}&limit=1`).then((res) => {
-            setText(res.data.data[0].text);
-            params.onRetrieve();
-        })
-    }, [params.num])
 
     return (
         <>
-            {text}
+            <TossupText text={"aaaaaa"} speed={4} />
         </>
     )
 }
 
+
+/**
+ * Display tossup text as a typed.js component.
+ * @param {Object} params - React params.
+ * @param {string} params.text - The text to display.
+ * @param {int} speed - The amount of milliseconds to wait between every character.
+ */
+function TossupText(params) {
+
+
+    const typedText = useRef(null);
+
+    useEffect(() => {
+        //axios.get(`http://localhost:8080/api/tossups?type=cat&cat=${params.category[0]}&limit=1`).then((res) => {
+
+       // });
+
+        let options = {
+            strings: [params.text.replace(/\./g,'. ^500 ')],
+            typeSpeed: params.speed,
+            showCursor: false
+        };
+
+        let typingComponent = new Typed(typedText.current, options);
+
+
+        return () => {
+            if (typingComponent)
+                typingComponent.destroy();
+        }
+
+    }, [])
+
+
+
+    return (
+        <>
+            <span ref={typedText}></span>
+        </>
+    )
+}
+
+/**
+ * Component that redirects to a page after a given timeout
+ * @param {Object} params - React params.
+ * @param {int} params.delay - The time to wait (in ms) before the redirect happens.
+ * @returns {Object} - The React-router Redirect component after the timeout
+ */
 export function DelayedRedirect(params) {
     const [canRedirect, setCanRedirect] = useState(false);
 
@@ -51,6 +104,10 @@ export function DelayedRedirect(params) {
     }
 }
 
+/**
+ * Component that lets players play single player tossups
+ * @returns {Object} - The single player view component.
+ */
 export function SingleplayerViewer() {
 
     const [redirectState, setRedirectState] = useState("");
@@ -129,9 +186,6 @@ export function SingleplayerViewer() {
                         <div className={"question-view-bg qbg-unlit " + (isPlaying ? (buzzed ? "qbg-yellow " : "qbg-red") : "") }>
                             <div className="question-view">
                                 <div className="parameter-header shadow">Tossup 1 - Geography American</div>
-                                <TossupText difficulty={[1]} category={[15]} num={tossupNum} onRetrieve={() => {
-                                    setNextSet(false);
-                                }} />
                             </div>
                         </div>
                         <div className={"answer-box-bg qbg-unlit " + (buzzed ? "qbg-timer" : "")}>

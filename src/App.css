@@ -260,7 +260,7 @@ html, body {
 }
 
 .connection-text {
-    font-size: 14px;
+    font-size: 12px;
 }
 
 .conn-red {
@@ -575,6 +575,11 @@ body {
     font-size: 18px;
     border-radius: 10px;
     background-color: #0f1821;
+    border: none;
+}
+
+.answer-box-input:focus {
+    border: none;
 }
 
 .disabled {

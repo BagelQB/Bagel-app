@@ -16,10 +16,12 @@ import {
 
 const firebaseCreds = require("./firebase.json");
 
+
+/**
+ * Returns the bagel QB app
+ * @returns {Object} - The bagel QB app
+ */
 function App() {
-
-
-
   return (
       <FirebaseAuthProvider {...firebaseCreds} firebase={firebase}>
           <Router>
