@@ -28,59 +28,81 @@ export function PlayControlButton(props) {
 
 /**
  * Component that contains tossup data.
+ * @param {Object} params - React params.
+ * @param {Boolean} params.play - Is a tossup currently being played
+ * @param {Boolean} params.buzz - Did the player buzz
+ * @param {Boolean} params.next - Is the next button currently pressed
+ * @param {int[]} params.subcategories - subcategories to use
+ * @param {int[]} params.difficulties - difficulty list to use
+ * @param {int} params.speed - Time in ms between every character
+ * @param {Function} params.onRetrieveNext - Callback for when next tossup is retrieved.
  * @returns {Object} - The tossup text that matches the parameters
  */
 function TossupController(params) {
 
-
-    return (
-        <>
-            <TossupText text={"aaaaaa"} speed={4} />
-        </>
-    )
-}
-
-
-/**
- * Display tossup text as a typed.js component.
- * @param {Object} params - React params.
- * @param {string} params.text - The text to display.
- * @param {int} speed - The amount of milliseconds to wait between every character.
- */
-function TossupText(params) {
-
-
-    const typedText = useRef(null);
+    const [text, setText] = useState("");
+    const [char, setChar] = useState(0);
+    const [wasBuzzed, setWasBuzzed] = useState(false);
 
     useEffect(() => {
-        //axios.get(`http://localhost:8080/api/tossups?type=cat&cat=${params.category[0]}&limit=1`).then((res) => {
 
-       // });
-
-        let options = {
-            strings: [params.text.replace(/\./g,'. ^500 ')],
-            typeSpeed: params.speed,
-            showCursor: false
-        };
-
-        let typingComponent = new Typed(typedText.current, options);
-
-
-        return () => {
-            if (typingComponent)
-                typingComponent.destroy();
+        let timeout = params.speed;
+        if(char === 0) {
+            timeout += 600;
         }
 
-    }, [])
+        let charTO = setTimeout(() => {
+            if(params.play && !params.buzz) {
+                setChar(char + 1);
+            }
+        }, timeout);
+
+        return () => {
+            clearTimeout(charTO);
+        }
+
+    }, [params.speed, params.play, params.buzz, char]);
+
+    useEffect(() => {
+        console.log(wasBuzzed);
+        if(wasBuzzed && params.buzz === false) {
+            // submit answer
+            setWasBuzzed(false);
+        } else if(params.buzz === true) {
+            // wait 10 seconds then submit answer
+            setWasBuzzed(true);
+        }
+
+    }, [params.buzz])
+
+
+    useEffect(() => {
+        axios.get(`http://localhost:8080/api/tossups?type=param&diffis=[${params.difficulties.join(",")}]&subcats=[${params.subcategories.join(",")}]&limit=1`).then((res) => {
+
+            let tu = res.data.data[0];
+            console.log(tu);
+            params.onRetrieveNext();
+            setChar(0);
+            setText(tu.text);
+
+        }).catch((err) => {
+            console.log(err);
+        })
+    }, [params.next]);
+
+
+
 
 
 
     return (
         <>
-            <span ref={typedText}></span>
+            <div className="parameter-header shadow">Tossup 1 - Geography American</div>
+            {text.substr(0, char)}
         </>
     )
 }
+
 
 /**
  * Component that redirects to a page after a given timeout
@@ -185,7 +207,17 @@ export function SingleplayerViewer() {
 
                         <div className={"question-view-bg qbg-unlit " + (isPlaying ? (buzzed ? "qbg-yellow " : "qbg-red") : "") }>
                             <div className="question-view">
-                                <div className="parameter-header shadow">Tossup 1 - Geography American</div>
+
+                                <TossupController
+                                    subcategories={[36]}
+                                    difficulties={[1,2,3,4,5,6,7,8,9]}
+                                    play={isPlaying}
+                                    buzz={buzzed}
+                                    next={nextSet}
+                                    speed={18}
+                                    onRetrieveNext={() => {setNextSet(false)}}
+
+                                />
                             </div>
                         </div>
                         <div className={"answer-box-bg qbg-unlit " + (buzzed ? "qbg-timer" : "")}>
