@@ -3,9 +3,7 @@ import {
     Redirect, useHistory
 } from "react-router-dom";
 import {useEffect, useRef, useState} from "react";
-import {FullMenu} from "./mainMenu";
-import {RedirectWrapper} from "./redirectWrapper";
-import Typed from "typed.js/src/typed";
+import {judgeAnswer} from "../bagel_modules/answerJudge";
 
 let axios = require("axios");
 
@@ -36,13 +34,13 @@ export function PlayControlButton(props) {
  * @param {int[]} params.difficulties - difficulty list to use
  * @param {int} params.speed - Time in ms between every character
  * @param {Function} params.onRetrieveNext - Callback for when next tossup is retrieved.
+ * @param {Boolean} params.reveal - Reveal all tossup text
  * @returns {Object} - The tossup text that matches the parameters
  */
 function TossupController(params) {
 
     const [text, setText] = useState("");
     const [char, setChar] = useState(0);
-    const [wasBuzzed, setWasBuzzed] = useState(false);
 
     useEffect(() => {
 
@@ -63,25 +61,12 @@ function TossupController(params) {
 
     }, [params.speed, params.play, params.buzz, char]);
 
-    useEffect(() => {
-        console.log(wasBuzzed);
-        if(wasBuzzed && params.buzz === false) {
-            // submit answer
-            setWasBuzzed(false);
-        } else if(params.buzz === true) {
-            // wait 10 seconds then submit answer
-            setWasBuzzed(true);
-        }
-
-    }, [params.buzz])
-
 
     useEffect(() => {
         axios.get(`http://localhost:8080/api/tossups?type=param&diffis=[${params.difficulties.join(",")}]&subcats=[${params.subcategories.join(",")}]&limit=1`).then((res) => {
 
             let tu = res.data.data[0];
-            console.log(tu);
-            params.onRetrieveNext();
+            params.onRetrieveNext(tu);
             setChar(0);
             setText(tu.text);
 
@@ -98,7 +83,7 @@ function TossupController(params) {
     return (
         <>
             <div className="parameter-header shadow">Tossup 1 - Geography American</div>
-            {text.substr(0, char)}
+            {params.reveal ? text : text.substr(0, char)}
         </>
     )
 }
@@ -126,6 +111,8 @@ export function DelayedRedirect(params) {
     }
 }
 
+
+
 /**
  * Component that lets players play single player tossups
  * @returns {Object} - The single player view component.
@@ -140,7 +127,39 @@ export function SingleplayerViewer() {
     const [buzzed, setBuzzed] = useState(false);
     const [answer, setAnswer] = useState("");
     const [tossupNum, setTossupNum] = useState(1);
+    const [tossupData, setTossupData] = useState({});
+    const [answerTimeout, setAnswerTimeout] = useState(null);
+    const [nextTossupTimeout, setNextTossupTimeout] = useState(null);
+    const [tossupCorrect, setTossupCorrect] = useState(false);
 
+    useEffect(() => {
+        document.addEventListener("keydown", (e) => {
+            if(e.key === " ") {
+                if(!buzzed) {
+                    e.preventDefault();
+                    answerRef.current.focus(); // Focus answer element
+                    setBuzzed(true); setIsPlaying(true) // Stop reading the tu and show visuals that you buzzed.
+                    setAnswerTimeout(setTimeout(() => {
+
+                        let correct = judgeAnswer(answerRef.current.value, tossupData.answer);
+                        console.log(answer + " / " + tossupData.answer + " / " + correct);
+                        if(correct) {
+                            setTossupCorrect(true);
+
+                            setNextTossupTimeout(setTimeout(() => {
+                                setNextSet(true);
+                            }, 2000));
+
+                        } else {
+                            setTossupCorrect(false);
+                        }
+                        setAnswer("");
+                        setBuzzed(false);
+                    }, 10000));
+                }
+            }
+        }, false);
+    }, [])
 
     let history = useHistory();
     const answerRef = useRef(null);
@@ -177,7 +196,7 @@ export function SingleplayerViewer() {
                             <div className="flex-space">
                                 <PlayControlButton pressed={settingsOpen} clickEvent={() => {setSettingsOpen(true)}}><i className="fa fa-gear"></i> SETTINGS</PlayControlButton>
                                 <PlayControlButton pressed={isPlaying} clickEvent={() => {setIsPlaying(!isPlaying); setBuzzed(false)}}><i className="fa fa-play"></i> PLAY</PlayControlButton>
-                                <PlayControlButton pressed={nextSet} clickEvent={() => {setNextSet(true); setTossupNum(tossupNum + 1)}}><i className="fa fa-forward"></i> NEXT</PlayControlButton>
+                                <PlayControlButton pressed={nextSet} clickEvent={() => {setNextSet(true); clearInterval(nextTossupTimeout); setTossupNum(tossupNum + 1)}}><i className="fa fa-forward"></i> NEXT</PlayControlButton>
                             </div>
 
                         </div>
@@ -193,9 +212,45 @@ export function SingleplayerViewer() {
                                 <PlayControlButton pressed={nextSet} clickEvent={() => {setNextSet(true); setTossupNum(tossupNum + 1)}}><i className="fa fa-forward"></i></PlayControlButton>
                                 <PlayControlButton pressed={buzzed} clickEvent={() => {
 
+
                                     if(!buzzed === true) {
-                                        answerRef.current.focus();
+                                        // Handle the buzz
+                                        answerRef.current.focus(); // Focus answer element
+                                        setBuzzed(true); setIsPlaying(true) // Stop reading the tu and show visuals that you buzzed.
+                                        setAnswerTimeout(setTimeout(() => {
+
+                                            let correct = judgeAnswer(answerRef.current.value, tossupData.answer);
+                                            console.log(answer + " / " + tossupData.answer + " / " + correct);
+                                            if(correct) {
+                                                setTossupCorrect(true);
+
+                                                setNextTossupTimeout(setTimeout(() => {
+                                                    setNextSet(true);
+                                                }, 2000));
+
+                                            } else {
+                                                setTossupCorrect(false);
+                                            }
+                                            setAnswer("");
+                                            setBuzzed(false);
+                                        }, 10000));
                                     } else {
+                                        clearTimeout(answerTimeout);
+                                        let correct = judgeAnswer(answerRef.current.value, tossupData.answer);
+                                        console.log(answer + " / " + tossupData.answer + " / " + correct);
+                                        if(correct) {
+                                            setTossupCorrect(true);
+
+                                            setNextTossupTimeout(setTimeout(() => {
+                                                setNextSet(true);
+                                            }, 2000));
+                                        } else {
+                                            setTossupCorrect(false);
+                                        }
+                                        setAnswer("");
+                                        setBuzzed(false);
+
+
                                         setAnswer("");
                                     }
 
@@ -205,7 +260,7 @@ export function SingleplayerViewer() {
                             </div>
                         </div>
 
-                        <div className={"question-view-bg qbg-unlit " + (isPlaying ? (buzzed ? "qbg-yellow " : "qbg-red") : "") }>
+                        <div className={"question-view-bg qbg-unlit " + (tossupCorrect ? "qbg-green" : (isPlaying ? (buzzed ? "qbg-yellow " : "qbg-red") : "")) }>
                             <div className="question-view">
 
                                 <TossupController
@@ -214,9 +269,9 @@ export function SingleplayerViewer() {
                                     play={isPlaying}
                                     buzz={buzzed}
                                     next={nextSet}
-                                    speed={18}
-                                    onRetrieveNext={() => {setNextSet(false)}}
-
+                                    reveal={tossupCorrect}
+                                    speed={25}
+                                    onRetrieveNext={(tossup) => {setNextSet(false); setTossupCorrect(false); setTossupData(tossup)}}
                                 />
                             </div>
                         </div>
@@ -224,11 +279,51 @@ export function SingleplayerViewer() {
                             <div className={"answer-box " + (buzzed ? "" : "disabled")}>
                                 <input type="text" ref={answerRef} className={"answer-box-input" + (buzzed ? "" : "-disabled")} value={answer} placeholder="Answer" onChange={(event) => {
                                     setAnswer(event.target.value);
-                                }} />
+                                }}
+                                onKeyDown={(e) => {
+                                    if(e.key === "Enter" && buzzed && isPlaying) {
+                                        // submit answer
+                                        let correct = judgeAnswer(answerRef.current.value, tossupData.answer);
+                                        console.log(answer + " / " + tossupData.answer + " / " + correct);
+                                        if(correct) {
+                                            setTossupCorrect(true);
+
+                                            setNextTossupTimeout(setTimeout(() => {
+                                                setNextSet(true);
+                                            }, 2000));
+                                        } else {
+                                            setTossupCorrect(false);
+                                        }
+                                        clearInterval(answerTimeout)
+                                        setAnswer("");
+                                        setBuzzed(false);
+                                        answerRef.current.blur();
+                                    }
+                                }}
+                                />
                                 <div id="tb-buzz-container">
                                     <button id="textbox-buzz" onClick={() => {
-                                        answerRef.current.focus();
-                                        setBuzzed(true); setIsPlaying(true)
+
+                                        // Handle the buzz
+                                        answerRef.current.focus(); // Focus answer element
+                                        setBuzzed(true); setIsPlaying(true) // Stop reading the tu and show visuals that you buzzed.
+                                        setAnswerTimeout(setTimeout(() => {
+
+                                            let correct = judgeAnswer(answerRef.current.value, tossupData.answer);
+                                            console.log(answer + " / " + tossupData.answer + " / " + correct);
+                                            if(correct) {
+                                                setTossupCorrect(true);
+
+                                                setNextTossupTimeout(setTimeout(() => {
+                                                    setNextSet(true);
+                                                }, 2000));
+                                            } else {
+                                                setTossupCorrect(false);
+                                            }
+                                            setAnswer("");
+                                            setBuzzed(false);
+                                        }, 10000));
+
                                     }} style={{display: buzzed ? "none" : "block"}}><i className="fa fa-bell"></i> BUZZ</button>
                                 </div>
 

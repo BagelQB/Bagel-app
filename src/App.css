@@ -576,10 +576,12 @@ body {
     border-radius: 10px;
     background-color: #0f1821;
     border: none;
+    outline: none !important;
 }
 
 .answer-box-input:focus {
     border: none;
+    outline: none !important;
 }
 
 .disabled {
