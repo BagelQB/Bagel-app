@@ -4,6 +4,9 @@ import {
 } from "react-router-dom";
 import {useEffect, useRef, useState} from "react";
 import {judgeAnswer} from "../bagel_modules/answerJudge";
+import {MultirangeSlider, SelectBox, Slider} from "../bagel_modules/utilityComponents";
+
+const subcategoryMapping = require("../bagel_mappings/subcategoryMapping.json");
 
 let axios = require("axios");
 
@@ -24,33 +27,43 @@ export function PlayControlButton(props) {
 
 }
 
+
+
 /**
  * Component that contains tossup data.
- * @param {Object} params - React params.
- * @param {Boolean} params.play - Is a tossup currently being played
- * @param {Boolean} params.buzz - Did the player buzz
- * @param {Boolean} params.next - Is the next button currently pressed
- * @param {int[]} params.subcategories - subcategories to use
- * @param {int[]} params.difficulties - difficulty list to use
- * @param {int} params.speed - Time in ms between every character
- * @param {Function} params.onRetrieveNext - Callback for when next tossup is retrieved.
- * @param {Boolean} params.reveal - Reveal all tossup text
+ * @param {Object} props - React props.
+ * @param {Boolean} props.play - Is a tossup currently being played
+ * @param {Boolean} props.buzz - Did the player buzz
+ * @param {Boolean} props.next - Is the next button currently pressed
+ * @param {int[]} props.subcategories - subcategories to use
+ * @param {int[]} props.difficulties - difficulty list to use
+ * @param {int} props.speed - Time in ms between every character
+ * @param {Function} props.onRetrieveNext - Callback for when next tossup is retrieved.
+ * @param {Function} props.onStart - Callback for when the tossup reading starts
+ * @param {Boolean} props.reveal - Reveal all tossup text
  * @returns {Object} - The tossup text that matches the parameters
  */
-function TossupController(params) {
+function TossupController(props) {
 
     const [text, setText] = useState("");
+    const [subcat, setSubcat] = useState(0);
+    const [num, setNum] = useState(0);
     const [char, setChar] = useState(0);
 
     useEffect(() => {
-
-        let timeout = params.speed;
+        let timeout = props.speed;
         if(char === 0) {
+
+            if(props.play && !props.buzz) {
+                setNum(num + 1);
+                props.onStart(num);
+            }
+
             timeout += 600;
         }
 
         let charTO = setTimeout(() => {
-            if(params.play && !params.buzz) {
+            if(props.play && !props.buzz) {
                 setChar(char + 1);
             }
         }, timeout);
@@ -59,21 +72,24 @@ function TossupController(params) {
             clearTimeout(charTO);
         }
 
-    }, [params.speed, params.play, params.buzz, char]);
+    }, [props.speed, props.play, props.buzz, char]);
 
 
     useEffect(() => {
-        axios.get(`http://localhost:8080/api/tossups?type=param&diffis=[${params.difficulties.join(",")}]&subcats=[${params.subcategories.join(",")}]&limit=1`).then((res) => {
+        if(props.next === true) {
+            axios.get(`http://localhost:8080/api/tossups?type=param&diffis=[${props.difficulties.join(",")}]&subcats=[${props.subcategories.join(",")}]&limit=1`).then((res) => {
 
-            let tu = res.data.data[0];
-            params.onRetrieveNext(tu);
-            setChar(0);
-            setText(tu.text);
+                let tu = res.data.data[0];
+                props.onRetrieveNext(tu);
+                setChar(0);
+                setSubcat(tu.subcategory_id);
+                setText(tu.text);
 
-        }).catch((err) => {
-            console.log(err);
-        })
-    }, [params.next]);
+            }).catch((err) => {
+                console.log(err);
+            })
+        }
+    }, [props.next, props.difficulties, props.subcategories]);
 
 
 
@@ -82,8 +98,8 @@ function TossupController(params) {
 
     return (
         <>
-            <div className="parameter-header shadow">Tossup 1 - Geography American</div>
-            {params.reveal ? text : text.substr(0, char)}
+            <div className="parameter-header shadow">{num-1 > 0 ? `Tossup ${num-1} - ` : ""}{subcategoryMapping.forwards[subcat] ? subcategoryMapping.forwards[subcat].name : "Select params to play"}</div>
+            {props.reveal ? text : text.substr(0, char)}
         </>
     )
 }
@@ -91,27 +107,51 @@ function TossupController(params) {
 
 /**
  * Component that redirects to a page after a given timeout
- * @param {Object} params - React params.
- * @param {int} params.delay - The time to wait (in ms) before the redirect happens.
+ * @param {Object} props - React props.
+ * @param {int} props.delay - The time to wait (in ms) before the redirect happens.
  * @returns {Object} - The React-router Redirect component after the timeout
  */
-export function DelayedRedirect(params) {
+export function DelayedRedirect(props) {
     const [canRedirect, setCanRedirect] = useState(false);
 
     useEffect(() => {
         setTimeout(() => {
             setCanRedirect(true);
-        }, params.delay)
+        }, props.delay)
     }, [])
 
     if(canRedirect) {
-        return <Redirect to={params.to} />
+        return <Redirect to={props.to} />
     } else {
         return <></>
     }
 }
 
+/**
+ * Component that converts an array of log events to a list of logs.
+ * @param {Object} props - React props.
+ * @param {Object[]} props.logs - The game logs
+ * @returns {Object} - A list of logs.
+ */
+function LogCollection(props) {
 
+
+    return (props.logs.slice(1, props.logs.length).map(({effect, render}) => {
+
+        return (
+            <li>
+                <div className={"answer-box-bg " + effect + " onlyHover"}>
+                    <div className="answer-box">
+                        {render}
+                    </div>
+                </div>
+            </li>
+        )
+
+        })
+
+        );
+}
 
 /**
  * Component that lets players play single player tossups
@@ -131,10 +171,25 @@ export function SingleplayerViewer() {
     const [answerTimeout, setAnswerTimeout] = useState(null);
     const [nextTossupTimeout, setNextTossupTimeout] = useState(null);
     const [tossupCorrect, setTossupCorrect] = useState(false);
+    const [log, setLog] = useState([{effect: "qbg-focus", render: <>This is the beginning of the game log. Select some params and click&nbsp;&nbsp; <i className="fa fa-play"></i> &nbsp;&nbsp;to begin playing.</>}]);
+
+
+
+    //Settings
+    const [readingSpeed, setReadingSpeed] = useState(460)
+
+    //Params
+    const [difficultySliderMin, setDifficultySliderMin] = useState(1);
+    const [difficultySliderMax, setDifficultySliderMax] = useState(9);
+    const [subcatList, setSubcatList] = useState([]);
 
     useEffect(() => {
+
         document.addEventListener("keydown", (e) => {
             if(e.key === " ") {
+
+                if(document.activeElement.className === "answer-box-input") return;
+
                 if(!buzzed) {
                     e.preventDefault();
                     answerRef.current.focus(); // Focus answer element
@@ -142,7 +197,6 @@ export function SingleplayerViewer() {
                     setAnswerTimeout(setTimeout(() => {
 
                         let correct = judgeAnswer(answerRef.current.value, tossupData.answer);
-                        console.log(answer + " / " + tossupData.answer + " / " + correct);
                         if(correct) {
                             setTossupCorrect(true);
 
@@ -220,7 +274,6 @@ export function SingleplayerViewer() {
                                         setAnswerTimeout(setTimeout(() => {
 
                                             let correct = judgeAnswer(answerRef.current.value, tossupData.answer);
-                                            console.log(answer + " / " + tossupData.answer + " / " + correct);
                                             if(correct) {
                                                 setTossupCorrect(true);
 
@@ -237,7 +290,6 @@ export function SingleplayerViewer() {
                                     } else {
                                         clearTimeout(answerTimeout);
                                         let correct = judgeAnswer(answerRef.current.value, tossupData.answer);
-                                        console.log(answer + " / " + tossupData.answer + " / " + correct);
                                         if(correct) {
                                             setTossupCorrect(true);
 
@@ -264,14 +316,21 @@ export function SingleplayerViewer() {
                             <div className="question-view">
 
                                 <TossupController
-                                    subcategories={[36]}
-                                    difficulties={[1,2,3,4,5,6,7,8,9]}
+                                    subcategories={subcatList}
+                                    difficulties={Array(difficultySliderMax + 1).fill().map((_, idx) => difficultySliderMin + idx + 1)} //Generate list of numbers between 2 ranges (https://stackoverflow.com/a/33457557)
                                     play={isPlaying}
                                     buzz={buzzed}
                                     next={nextSet}
                                     reveal={tossupCorrect}
-                                    speed={25}
+                                    speed={1000/(readingSpeed* 1/12)}
                                     onRetrieveNext={(tossup) => {setNextSet(false); setTossupCorrect(false); setTossupData(tossup)}}
+                                    onStart={(number) => {
+                                        let newLog = log;
+                                        newLog.unshift({effect: "qbg-yellow", render: <>Tossup {number+1}</>});
+                                        setLog(newLog);
+                                        console.log(newLog);
+
+                                    } }
                                 />
                             </div>
                         </div>
@@ -284,7 +343,6 @@ export function SingleplayerViewer() {
                                     if(e.key === "Enter" && buzzed && isPlaying) {
                                         // submit answer
                                         let correct = judgeAnswer(answerRef.current.value, tossupData.answer);
-                                        console.log(answer + " / " + tossupData.answer + " / " + correct);
                                         if(correct) {
                                             setTossupCorrect(true);
 
@@ -310,7 +368,6 @@ export function SingleplayerViewer() {
                                         setAnswerTimeout(setTimeout(() => {
 
                                             let correct = judgeAnswer(answerRef.current.value, tossupData.answer);
-                                            console.log(answer + " / " + tossupData.answer + " / " + correct);
                                             if(correct) {
                                                 setTossupCorrect(true);
 
@@ -333,7 +390,21 @@ export function SingleplayerViewer() {
                         </div>
                         <div className="log-bg qbg-unlit">
                             <div className="log-list">
-                                <ul className="log-ul"></ul>
+                                <ul className="log-ul">
+                                    {log.length > 0 ?
+                                        <li>
+                                            <div className={"answer-box-bg " + log[0].effect}>
+                                                <div className="answer-box">
+                                                    {log[0].render}
+                                                </div>
+                                            </div>
+                                        </li>
+                                        : <></>
+                                    }
+
+                                    <LogCollection logs={log} />
+
+                                </ul>
                             </div>
                         </div>
                     </div>
@@ -348,11 +419,16 @@ export function SingleplayerViewer() {
                         <div className="options-box-large small-shadow">
                             <div className="vert-flex">
                                 <div className="option-header small-shadow flex-left-right">
-                                    Params <button id="param-button" onClick={() => {setParamsOpen(true)}}><i className="fa fa-pencil"></i> EDIT</button>
+                                    Params {subcatList.length === 0 ? "(No params selected)" : ""} <div style={{marginTop: 0}} className={"question-view-bg qbg-unlit " + (subcatList.length === 0 ? "qbg-focus" : "")}><button id="param-button" onClick={() => {setParamsOpen(true)}}><i className="fa fa-pencil"></i> EDIT</button></div>
                                 </div>
                                 <div className="parameter-box small-shadow" style={{"flexGrow": "3"}}>
-
                                     Room Options
+
+                                    <div className={"room-option"}>
+                                        {` Reading Speed  |  ${readingSpeed} WPM  |  ` } <span class={"settings-reset-button"} onClick={() => {setReadingSpeed(460)}}>Reset</span>
+                                        <Slider min={160} max={2000} defaultValue={460} setValue={readingSpeed} updateFunction={setReadingSpeed} />
+                                    </div>
+
                                 </div>
                             </div>
 
@@ -419,17 +495,24 @@ export function SingleplayerViewer() {
                     <div className="options-box-large small-shadow flex-space">
                         <div className="vert-flex" style={{"flexGrow": "2"}}>
                             <div className="parameter-box small-shadow" style={{"flexGrow": "3"}}>
-                                Add Param
-                            </div>
-                            <div className="parameter-box small-shadow" style={{"flexGrow": "3", "marginTop": "5px"}}>
-                                Presets
-                            </div>
-                        </div>
 
-                        <div className="vert-flex" style={{"flexGrow": "2", "paddingLeft": "5px"}}>
-                            <div className="parameter-box small-shadow" style={{"flexGrow": "3"}}>
-                                Param List
+
+
+                                <div>
+                                    Difficulty:
+                                    <div className={"multislider-container"} >
+
+                                        <MultirangeSlider initialValues={[0, 8, 0]} setMin={setDifficultySliderMin} setMax={setDifficultySliderMax} />
+
+                                    </div>
+
+
+                                </div>
+                                <br/><br/>
+                                <SelectBox updateFunction={setSubcatList}  />
+
                             </div>
+
                         </div>
 
                     </div>
@@ -451,7 +534,4 @@ export function SingleplayerViewer() {
 
 }
 
-/*
 
-
-* */

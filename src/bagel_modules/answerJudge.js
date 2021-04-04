@@ -25,6 +25,10 @@ function simplify(answerline) {
  * @returns {String[]} - The list of "acceptable answerlines"
  */
 function getAlternate(answerline) {
+
+    if(!answerline)
+        return [];
+
     var rx = /(accept).*?;/g;
     return answerline.match(rx);
 }
