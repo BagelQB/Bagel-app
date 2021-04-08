@@ -1,6 +1,6 @@
 import './App.css';
 import {FullMenu} from './bagel-components/mainMenu';
-import {SingleplayerViewer} from './bagel-components/singleplayerView';
+import {SingleplayerView, TKView} from './bagel-components/Singleplayer/singleplayerView';
 import {
     FirebaseAuthProvider
 } from "@react-firebase/auth";
@@ -31,7 +31,7 @@ function App() {
                       <FullMenu visible={true}></FullMenu>
                   </Route>
                   <Route path={"/singleplayer"}>
-                      <SingleplayerViewer />
+                      <SingleplayerView />
                   </Route>
                   <Route path={"/multiplayer"}>
                       bbb

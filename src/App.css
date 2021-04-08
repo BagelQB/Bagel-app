@@ -301,7 +301,32 @@ html, body {
     font-family: Comfortaa;
     color: #c51f5d;
     font-size: 40px;
+    display: flex;
     height: 50px;
+}
+
+.nav-button {
+    border: 2px solid #c51f5d;
+    border-radius: 10px;
+    background-color: #1e272f;
+    padding: 5px;
+    margin-left: 45px;
+    font-size: 20px;
+    color: #c51f5d;
+    transition: 0.2s;
+    padding-left: 10px;
+    padding-right: 10px;
+}
+
+.nav-button-active {
+    background-color: #2e373f;
+}
+
+.nav-button:hover {
+    background-color: #3e474f;
+    border: 2px solid #e53f7d;
+    color: #f54f8d;
+    cursor: pointer;
 }
 
 .point-cursor:hover {

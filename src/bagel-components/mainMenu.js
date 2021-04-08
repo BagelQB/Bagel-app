@@ -2,7 +2,7 @@ import {
     Redirect, useHistory
 } from "react-router-dom";
 import {useEffect, useState} from "react";
-import {DelayedRedirect} from "./singleplayerView";
+import {DelayedRedirect} from "./Singleplayer/singleplayerView";
 import {
     IfFirebaseAuthed, IfFirebaseUnAuthed
 } from "@react-firebase/auth";
@@ -153,7 +153,7 @@ export function FullMenu(props) {
                             });
                         }} style={hoverMenuStyle}>
                             <div className={"menu-button"} onClick={() => {
-                                setRedirectState("/singleplayer/alpha")
+                                setRedirectState("/singleplayer/tk_alpha")
                             }}>Singleplayer</div>
                             <div className={"menu-button"}>Multiplayer</div>
                         </div>

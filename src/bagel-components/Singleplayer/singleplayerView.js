@@ -1,12 +1,12 @@
 
 import {
-    Redirect, useHistory
+    Redirect, Route, Switch, useHistory, useLocation, useRouteMatch
 } from "react-router-dom";
 import {useEffect, useRef, useState} from "react";
-import {judgeAnswer} from "../bagel_modules/answerJudge";
-import {MultirangeSlider, SelectBox, Slider} from "../bagel_modules/utilityComponents";
+import {judgeAnswer} from "../../bagel_modules/answerJudge";
+import {MultirangeSlider, SelectBox, Slider} from "../../bagel_modules/utilityComponents";
 
-const subcategoryMapping = require("../bagel_mappings/subcategoryMapping.json");
+const subcategoryMapping = require("../../bagel_mappings/subcategoryMapping.json");
 
 let axios = require("axios");
 
@@ -155,11 +155,11 @@ function LogCollection(props) {
 
 /**
  * Component that lets players play single player tossups
- * @returns {Object} - The single player view component.
+ * @returns {Object} - The single player tossups component
  */
-export function SingleplayerViewer() {
+export function TKView() {
 
-    const [redirectState, setRedirectState] = useState("");
+
     const [isPlaying, setIsPlaying] = useState(false);
     const [settingsOpen, setSettingsOpen] = useState(false);
     const [paramsOpen, setParamsOpen] = useState(false);
@@ -215,33 +215,17 @@ export function SingleplayerViewer() {
         }, false);
     }, [])
 
-    let history = useHistory();
+
     const answerRef = useRef(null);
 
 
-    let redirect = <DelayedRedirect to={redirectState} delay={600} />
 
-    if(redirectState === "") {
-        redirect = null;
-    }
 
 
     return(
         <>
-            {redirect}
-        <div className={"main-wrapper " + (history.action === "REPLACE" ? "main-wrapper-fadein" : "")}>
 
-            <div className="nav-bar shadow">
-                <div className={"point-cursor"} onClick={() => {
-                    setRedirectState("/menu");
-                }}>
-                    <div className="outer-circle-b">
-                        <div className="inner-circle-b"></div>
-                    </div>
-                    <span className="title-text">bagel</span>
-                </div>
 
-            </div>
             <div className="content-wrapper">
 
                 <div className="main-view shadow">
@@ -256,7 +240,7 @@ export function SingleplayerViewer() {
                         </div>
 
                         <div className="mode-view shadow only-desktop flex-left-right">
-                            Bagel Tossups (OFFLINE)
+                            Bagel Tossups
                             <div>
                                 <PlayControlButton pressed={isPlaying} clickEvent={() => {
                                     setIsPlaying(!isPlaying);
@@ -445,7 +429,7 @@ export function SingleplayerViewer() {
                     </div>
                 </div>
             </div>
-        </div>
+
             <div className="only-mobile" >
                 <div className="modal" style={{display: settingsOpen ? "block" : "none"}}>
                     <div className="modal-content">
@@ -525,13 +509,358 @@ export function SingleplayerViewer() {
 
     </div>
 
-    <div className={"redirect-cover"} style={{"display": redirectState === "" ? "none" : "block"}} />
+
+        </>
+
+    )
+}
+
+/**
+ * Component that lets players play single player bonuses (pk)
+ * @returns {Object} - The single player pk component.
+ */
+export function PKView() {
+
+
+    const [isPlaying, setIsPlaying] = useState(false);
+    const [settingsOpen, setSettingsOpen] = useState(false);
+    const [paramsOpen, setParamsOpen] = useState(false);
+    const [nextSet, setNextSet] = useState(false);
+    const [buzzed, setBuzzed] = useState(false);
+    const [answer, setAnswer] = useState("");
+    const [tossupNum, setTossupNum] = useState(1);
+    const [tossupData, setTossupData] = useState({});
+    const [answerTimeout, setAnswerTimeout] = useState(null);
+    const [nextTossupTimeout, setNextTossupTimeout] = useState(null);
+    const [tossupCorrect, setTossupCorrect] = useState(false);
+    const [log, setLog] = useState([{effect: "qbg-focus", render: <>This is the beginning of the game log. Select some params and click&nbsp;&nbsp; <i className="fa fa-play"></i> &nbsp;&nbsp;to begin playing.</>}]);
+
+
+
+
+    //Params
+    const [difficultySliderMin, setDifficultySliderMin] = useState(1);
+    const [difficultySliderMax, setDifficultySliderMax] = useState(9);
+    const [subcatList, setSubcatList] = useState([]);
+
+    useEffect(() => {
+
+        document.addEventListener("keydown", (e) => {
+            if(e.key === " ") {
+
+                if(document.activeElement.className === "answer-box-input") return;
+
+                if(!buzzed) {
+                    e.preventDefault();
+                    answerRef.current.focus(); // Focus answer element
+                    setBuzzed(true); setIsPlaying(true) // Stop reading the tu and show visuals that you buzzed.
+                    setAnswerTimeout(setTimeout(() => {
+
+                        let correct = judgeAnswer(answerRef.current.value, tossupData.answer);
+                        if(correct) {
+                            setTossupCorrect(true);
+
+                            setNextTossupTimeout(setTimeout(() => {
+                                setNextSet(true);
+                            }, 2000));
+
+                        } else {
+                            setTossupCorrect(false);
+                        }
+                        setAnswer("");
+                        setBuzzed(false);
+                    }, 10000));
+                }
+            }
+        }, false);
+    }, [])
+
+
+    const answerRef = useRef(null);
+
+
+
+
+
+    return(
+        <>
+
+
+            <div className="content-wrapper">
+
+                <div className="main-view shadow">
+                    <div className="vert-flex">
+                        <div className="mode-view shadow only-mobile">
+                            <div className="flex-space">
+                                <PlayControlButton pressed={settingsOpen} clickEvent={() => {setSettingsOpen(true)}}><i className="fa fa-gear"></i> SETTINGS</PlayControlButton>
+                                <PlayControlButton pressed={isPlaying} clickEvent={() => {setIsPlaying(!isPlaying); setBuzzed(false)}}><i className="fa fa-play"></i> PLAY</PlayControlButton>
+                                <PlayControlButton pressed={nextSet} clickEvent={() => {setNextSet(true); clearInterval(nextTossupTimeout); setTossupNum(tossupNum + 1)}}><i className="fa fa-forward"></i> NEXT</PlayControlButton>
+                            </div>
+
+                        </div>
+
+                        <div className="mode-view shadow only-desktop flex-left-right">
+                            Bagel Bonuses
+                            <div>
+                                <PlayControlButton pressed={isPlaying} clickEvent={() => {
+                                    setIsPlaying(!isPlaying);
+                                    setAnswer("");
+                                    setBuzzed(false);
+                                }}><i className="fa fa-play"></i></PlayControlButton>
+                                <PlayControlButton pressed={nextSet} clickEvent={() => {setNextSet(true); setTossupNum(tossupNum + 1)}}><i className="fa fa-forward"></i></PlayControlButton>
+                            </div>
+                        </div>
+
+                        <div className={"question-view-bg qbg-unlit " + (tossupCorrect ? "qbg-green" : (isPlaying ? (buzzed ? "qbg-yellow " : "qbg-red") : "")) }>
+                            <div className="question-view">
+
+                                <TossupController
+                                    subcategories={subcatList}
+                                    difficulties={Array(difficultySliderMax + 1).fill().map((_, idx) => difficultySliderMin + idx + 1)} //Generate list of numbers between 2 ranges (https://stackoverflow.com/a/33457557)
+                                    play={isPlaying}
+                                    buzz={buzzed}
+                                    next={nextSet}
+                                    reveal={tossupCorrect}
+                                    speed={-1}
+                                    onRetrieveNext={(tossup) => {setNextSet(false); setTossupCorrect(false); setTossupData(tossup)}}
+                                    onStart={(number) => {
+                                        let newLog = log;
+                                        newLog.unshift({effect: "qbg-yellow", render: <>Tossup {number+1}</>});
+                                        setLog(newLog);
+                                        console.log(newLog);
+
+                                    } }
+                                />
+                            </div>
+                        </div>
+                        <div className={"answer-box-bg qbg-unlit " + (buzzed ? "qbg-timer" : "")}>
+                            <div className={"answer-box"}>
+                                <input type="text" ref={answerRef} className={"answer-box-input"} value={answer} placeholder="Answer" onChange={(event) => {
+                                    setAnswer(event.target.value);
+                                }}
+                                       onKeyDown={(e) => {
+                                           if(e.key === "Enter" && buzzed && isPlaying) {
+                                               // submit answer
+                                               let correct = judgeAnswer(answerRef.current.value, tossupData.answer);
+                                               if(correct) {
+                                                   setTossupCorrect(true);
+
+                                                   setNextTossupTimeout(setTimeout(() => {
+                                                       setNextSet(true);
+                                                   }, 2000));
+                                               } else {
+                                                   setTossupCorrect(false);
+                                               }
+                                               clearInterval(answerTimeout)
+                                               setAnswer("");
+                                               setBuzzed(false);
+                                               answerRef.current.blur();
+                                           }
+                                       }}
+                                />
+
+
+                            </div>
+
+                        </div>
+                        <div className="log-bg qbg-unlit">
+                            <div className="log-list">
+                                <ul className="log-ul">
+                                    {log.length > 0 ?
+                                        <li>
+                                            <div className={"answer-box-bg " + log[0].effect}>
+                                                <div className="answer-box">
+                                                    {log[0].render}
+                                                </div>
+                                            </div>
+                                        </li>
+                                        : <></>
+                                    }
+
+                                    <LogCollection logs={log} />
+
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div className="side-view shadow only-desktop">
+
+
+                    <div className="options-view">
+                        <div className="mode-view shadow">
+                            Room Settings
+                        </div>
+                        <div className="options-box-large small-shadow">
+                            <div className="vert-flex">
+                                <div className="option-header small-shadow flex-left-right">
+                                    Params {subcatList.length === 0 ? "(No params selected)" : ""} <div style={{marginTop: 0}} className={"question-view-bg qbg-unlit " + (subcatList.length === 0 ? "qbg-focus" : "")}><button id="param-button" onClick={() => {setParamsOpen(true)}}><i className="fa fa-pencil"></i> EDIT</button></div>
+                                </div>
+                                <div className="parameter-box small-shadow" style={{"flexGrow": "3"}}>
+                                    Room Options
+
+
+
+                                </div>
+                            </div>
+
+                        </div>
+                        <div className="options-box-small small-shadow">
+                            <div className="vert-flex">
+                                <div className="option-header small-shadow">
+                                    Multiplayer options
+                                </div>
+                                <button id="cr-button"><i className="fa fa-pencil"></i> CREATE ONLINE ROOM</button>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div className="only-mobile" >
+                <div className="modal" style={{display: settingsOpen ? "block" : "none"}}>
+                    <div className="modal-content">
+                        <div className="options-view">
+                            <div className="mode-view shadow flex-left-right">
+                                Room Settings
+                                <button className="play-controls-unpressed" onClick={() => {setSettingsOpen(false)}}><i className="fa fa-times"></i></button>
+
+                            </div>
+                            <div className="options-box-large small-shadow">
+                                <div className="vert-flex">
+                                    <div className="option-header small-shadow flex-left-right">
+                                        Params <button id="param-button" onClick={() => {setParamsOpen(true)}}><i className="fa fa-pencil"></i> EDIT</button>
+                                    </div>
+                                    <div className="parameter-box small-shadow" style={{"flexGrow": "3"}}>
+                                        Room Options
+                                    </div>
+                                </div>
+
+                            </div>
+                            <div className="options-box-small small-shadow">
+                                <div className="vert-flex">
+                                    <div className="option-header small-shadow">
+                                        Multiplayer options
+                                    </div>
+                                    <button id="cr-button"><i className="fa fa-pencil"></i> CREATE ONLINE ROOM</button>
+                                </div>
+
+                            </div>
+                        </div>
+
+                    </div>
+
+                </div>
+            </div>
+
+            <div className="modal" style={{display: paramsOpen ? "block" : "none"}}>
+                <div className="modal-content">
+                    <div className="vert-flex">
+                        <div className="mode-view shadow flex-left-right">
+                            Edit Params
+                            <button className="play-controls-unpressed" onClick={() => {setParamsOpen(false)}}><i className="fa fa-times"></i></button>
+
+                        </div>
+                        <div className="flex-space" style={{"height": "100%"}}>
+
+                            <div className="options-box-large small-shadow flex-space">
+                                <div className="vert-flex" style={{"flexGrow": "2"}}>
+                                    <div className="parameter-box small-shadow" style={{"flexGrow": "3"}}>
+
+
+
+                                        <div>
+                                            Difficulty:
+                                            <div className={"multislider-container"} >
+
+                                                <MultirangeSlider initialValues={[0, 8, 0]} setMin={setDifficultySliderMin} setMax={setDifficultySliderMax} />
+
+                                            </div>
+
+
+                                        </div>
+                                        <br/><br/>
+                                        <SelectBox updateFunction={setSubcatList}  />
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
 
 
         </>
 
     )
+}
 
+/**
+ * Component conditionally renders single player views.
+ * @returns Single player views depending on path.
+ */
+export function SingleplayerView() {
+    const [redirectState, setRedirectState] = useState("");
+    const [instantRedirectState, setInstantRedirectState] = useState("");
+    let history = useHistory();
+    let match = useRouteMatch();
+    const location = useLocation();
+
+    let redirect = <DelayedRedirect to={redirectState} delay={600} />
+    let instRedirect = <Redirect to={instantRedirectState} />
+
+    if(instantRedirectState === "") {
+        instRedirect = null;
+    }
+
+    if(redirectState === "") {
+        redirect = null;
+    }
+
+    return(
+        <>
+        <div className={"main-wrapper " + (history.action === "REPLACE" ? "main-wrapper-fadein" : "")}>
+            {redirect}
+            {instRedirect}
+            <div className="nav-bar shadow">
+                <div className={"point-cursor"} onClick={() => {
+                    setRedirectState("/menu");
+                }}>
+                    <div className="outer-circle-b">
+                        <div className="inner-circle-b"></div>
+                    </div>
+                    <span className="title-text">bagel</span>
+                </div>
+                <div>
+                    <button className={"nav-button " + (location.pathname === "/singleplayer/tk_alpha" ? "nav-button-active" : "")} onClick={() => {setInstantRedirectState("/singleplayer/tk_alpha");}}>Tossups (Alpha)</button>
+                    <button className={"nav-button " + (location.pathname === "/singleplayer/pk_alpha" ? "nav-button-active" : "")} onClick={() => {setInstantRedirectState("/singleplayer/pk_alpha");}}>Bonuses (Alpha)</button>
+                </div>
+            </div>
+
+            <Switch>
+                <Route path={`${match.path}/tk_alpha`}>
+                    <TKView />
+                </Route>
+                <Route path={`${match.path}/pk_alpha`}>
+                    <PKView />
+                </Route>
+                <Route path={match.path}>
+                    <Redirect to={"tk_alpha"} />
+                </Route>
+            </Switch>
+
+        </div>
+        <div className={"redirect-cover"} style={{"display": redirectState === "" ? "none" : "block"}} />
+        </>
+    )
 }
 
 
