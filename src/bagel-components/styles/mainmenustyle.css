@@ -1,0 +1,151 @@
+@import url("https://fonts.googleapis.com/css2?family=Comfortaa&display=swap");
+body {
+    background-color: #141d26;
+    overflow: hidden;
+    text-align: center;
+}
+
+html {
+    height: 100%;
+}
+
+
+
+
+.inner-circle-fill {
+    position: relative;
+    width: 30px;
+    height: 30px;
+    left: 10px;
+    top: 10px;
+    border-radius: 50%;
+    background: #141d26;
+    z-index: 5;
+}
+
+.inner-circle {
+    position: relative;
+    width: 50px;
+    height: 50px;
+    left: 15px;
+    top: 15px;
+    border-radius: 50%;
+    background: #141d26;
+    z-index: 5;
+    background-image: linear-gradient(90deg, #141d26 20%, #c51f5d, #b50f4d 50%, #b50f4d 100%);
+    background-size: 500% 500%;
+    animation: animatedgradient 3s forwards;
+    animation-delay: 1s;
+    animation-iteration-count: 1;
+}
+
+.outer-circle {
+    position: relative;
+    width: 100px;
+    height: 100px;
+    display: inline-block;
+
+    border-radius: 50%;
+    background: #141d26;
+    z-index: 5;
+    background-image: linear-gradient(90deg, #141d26 20%, #c51f5d, #b50f4d 50%, #b50f4d 100%);
+
+    background-size: 500% 500%;
+    animation: animatedgradient 3s forwards;
+    animation-delay: 1s;
+    animation-iteration-count: 1;
+}
+
+.logo-text-wrapper {
+    display: flex;
+    flex-flow: column nowrap;
+    justify-content: center;
+    margin-left: 20px;
+    font-family: Comfortaa;
+
+    font-size: 56px;
+    background-color: #f3ec78;
+    background-image: linear-gradient(90deg, #141d26 20%, #c51f5d, #b50f4d 50%, #b50f4d 100%);
+    background-size: 500% 500%;
+    animation: animatedgradient 3s forwards;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.logo-text-wrapper-sub {
+    animation-delay: 3s;
+    font-size: 18px;
+    margin-top: 10px;
+}
+
+.logo-wrapper {
+    margin-top: 30px;
+    color: white;
+    display: flex;
+    flex-flow: row nowrap;
+}
+
+.outer-circle-fill {
+    position: relative;
+    width: 80px;
+    height: 80px;
+    left: 10px;
+    top: 10px;
+    border-radius: 50%;
+    background: #141d26;
+    z-index: 5;
+}
+
+
+
+
+@keyframes animatedgradient {
+    0% {
+        background-position: 0%, 0%;
+    }
+
+    100% {
+        background-position: 50% 0%;
+    }
+}
+
+
+
+
+.mm-wrapper {
+    background-color: #242d36;
+    border-radius: 20px;
+    margin-top: 50px;
+    width: 80%;
+    min-height: 500px;
+    display: flex;
+    flex-flow: column nowrap;
+}
+
+.play-button {
+    background-color: #141d26;
+    font-family: Comfortaa;
+    font-size: 52px;
+    margin-top: 50px;
+    border: none;
+    color: #c51f5d;
+    transition: 0.2s;
+    padding: 30px;
+
+    border-radius: 20px;
+}
+
+.play-button:hover {
+    background-color: #343d46;
+    cursor: pointer;
+    color: #e53f7d;
+
+}
+
+.wrapper {
+    height: 100%;
+    display: flex;
+    flex-flow: column nowrap;
+    align-items: center;
+    justify-content: center;
+}

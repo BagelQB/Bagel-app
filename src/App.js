@@ -1,24 +1,50 @@
-import logo from './logo.svg';
 import './App.css';
+import {FullMenu} from './bagel-components/mainMenu';
+import {SingleplayerViewer} from './bagel-components/singleplayerView';
+import {
+    FirebaseAuthProvider
+} from "@react-firebase/auth";
+import firebase from "firebase/app";
+import "firebase/auth";
 
+import {
+    BrowserRouter as Router,
+    Switch,
+    Route,
+    Redirect
+} from "react-router-dom";
+
+const firebaseCreds = require("./firebase.json");
+
+
+/**
+ * Returns the bagel QB app
+ * @returns {Object} - The bagel QB app
+ */
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+      <FirebaseAuthProvider {...firebaseCreds} firebase={firebase}>
+          <Router>
+              <Switch>
+
+                  <Route path={"/menu"}>
+                      <FullMenu visible={true}></FullMenu>
+                  </Route>
+                  <Route path={"/singleplayer"}>
+                      <SingleplayerViewer />
+                  </Route>
+                  <Route path={"/multiplayer"}>
+                      bbb
+                  </Route>
+                  <Route path={"/"}>
+                      <Redirect to={"/menu"}/>
+                  </Route>
+              </Switch>
+
+
+          </Router>
+      </FirebaseAuthProvider>
+
   );
 }
 

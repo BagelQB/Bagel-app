@@ -3,13 +3,22 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@react-firebase/auth": "^0.2.10",
     "@testing-library/jest-dom": "^5.11.9",
     "@testing-library/react": "^11.2.5",
     "@testing-library/user-event": "^12.8.3",
+    "axios": "^0.21.1",
+    "firebase": "^8.3.1",
+    "multi-slider": "^4.1.0",
     "react": "^17.0.1",
     "react-dom": "^17.0.1",
+    "react-router-dom": "^5.2.0",
     "react-scripts": "4.0.3",
-    "web-vitals": "^1.1.1"
+    "react-select": "^4.3.0",
+    "string-similarity": "^4.0.4",
+    "typed.js": "^2.0.12",
+    "web-vitals": "^1.1.1",
+    "websocket": "^1.0.33"
   },
   "scripts": {
     "start": "react-scripts start",
